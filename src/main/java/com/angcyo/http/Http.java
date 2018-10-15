@@ -3,8 +3,11 @@ package com.angcyo.http;
 import com.angcyo.http.log.HttpLoggingInterceptorM;
 import com.angcyo.http.log.LogInterceptor;
 import com.angcyo.http.log.LogUtil;
+import com.angcyo.http.progress.ProgressIntercept;
 import com.angcyo.http.type.TypeBuilder;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -39,7 +42,8 @@ public class Http {
                 .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .readTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .writeTimeout(TIME_OUT, TimeUnit.SECONDS)
-                .addInterceptor(httpLoggingInterceptorM)
+                .addNetworkInterceptor(httpLoggingInterceptorM)
+                .addNetworkInterceptor(new ProgressIntercept())
                 .build();
 
         return new Retrofit.Builder()

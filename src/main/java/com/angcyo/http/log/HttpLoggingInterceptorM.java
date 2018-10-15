@@ -18,6 +18,7 @@ import static okhttp3.internal.platform.Platform.INFO;
  * author: baiiu
  * date: on 16/8/31 19:09
  * description: https://github.com/baiiu/LogUtil
+ * 2018-10-15
  */
 public final class HttpLoggingInterceptorM implements Interceptor {
     private static final Charset UTF8 = Charset.forName("UTF-8");
