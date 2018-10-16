@@ -101,7 +101,8 @@ public class ProgressRequestBody extends RequestBody {
                     final long finalTotalBytesRead = totalBytesRead;
                     final long finalIntervalTime = curTime - lastRefreshTime;
 
-                    LogUtil.d("Progress", "已上传:" + totalBytesRead + " 共:" + mProgressInfo.getContentLength());
+                    LogUtil.d("Progress", "已上传:" + ProgressIntercept.formatSize(totalBytesRead) +
+                            " 共:" + ProgressIntercept.formatSize(mProgressInfo.getContentLength()));
                     for (int i = 0; i < mListeners.length; i++) {
                         final ProgressListener listener = mListeners[i];
                         mHandler.post(new Runnable() {

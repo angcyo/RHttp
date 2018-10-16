@@ -3,15 +3,13 @@ package com.angcyo.http.progress;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 import static com.angcyo.http.progress.ProgressManager.*;
 
@@ -89,6 +87,10 @@ public class ProgressIntercept implements Interceptor {
                 progressListeners.remove(listener);
             }
         }
+    }
+
+    static String formatSize(long byteNum) {
+        return ConvertUtils.byte2FitMemorySize(byteNum);
     }
 
     public ProgressIntercept() {
