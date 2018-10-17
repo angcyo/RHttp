@@ -24,7 +24,7 @@ import java.util.Map;
  * 修改备注：
  * Version: 1.0.0
  */
-class Json {
+public class Json {
     public static <T> T from(String json, Class<T> type) {
         Gson gson = new Gson();
         return gson.fromJson(json, type);
