@@ -85,27 +85,7 @@ public class Http {
      * ResponseBody->字符串 转换
      */
     public static Observable.Transformer<ResponseBody, String> transformerString() {
-        return new Observable.Transformer<ResponseBody, String>() {
-
-            @Override
-            public Observable<String> call(Observable<ResponseBody> responseObservable) {
-                return responseObservable
-                        .compose(Http.<ResponseBody>defaultTransformer())
-                        .map(new Func1<ResponseBody, String>() {
-                            @Override
-                            public String call(ResponseBody stringResponse) {
-                                String body = "";
-                                try {
-                                    body = stringResponse.string();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                return body;
-                            }
-                        })
-                        ;
-            }
-        };
+        return transformerBean(String.class);
     }
 
     /**
@@ -127,7 +107,7 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    //LogUtil.json(body);
+                                    LogUtil.json(body);
 
                                     if (type.isAssignableFrom(String.class)) {
                                         return (T) body;
