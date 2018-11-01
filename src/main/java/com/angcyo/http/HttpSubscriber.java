@@ -43,7 +43,11 @@ public class HttpSubscriber<T> extends Subscriber<T> {
     }
 
     public void onEnd(@Nullable T data /*如果成功, 才有值*/, @Nullable Throwable error /*如果失败, 才有值*/) {
-        LogUtil.i(LogUtil.mGlobalTag, data, error);
+        if (error == null) {
+            LogUtil.i(LogUtil.mGlobalTag, data, error);
+        } else {
+            LogUtil.e(LogUtil.mGlobalTag, data, error);
+        }
     }
 
 }
