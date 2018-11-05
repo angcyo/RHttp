@@ -1,13 +1,14 @@
 package com.angcyo.http;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import com.angcyo.http.log.HttpLoggingInterceptorM;
 import com.angcyo.http.log.LogInterceptor;
 import com.angcyo.http.log.LogUtil;
 import com.angcyo.http.progress.ProgressIntercept;
 import com.angcyo.http.type.TypeBuilder;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -17,9 +18,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,7 +92,12 @@ public class Http {
     /**
      * ResponseBody->T 转换
      */
-    public static <T> Observable.Transformer<ResponseBody, T> transformerBean(final Class<T> type) {
+    public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final Class<T> type) {
+        return transformerBean(type, null);
+    }
+
+    public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final Class<T> type,
+                                                                              @Nullable final IConvertString convert) {
         return new Observable.Transformer<ResponseBody, T>() {
 
             @Override
@@ -102,12 +108,16 @@ public class Http {
                             @Override
                             public T call(ResponseBody stringResponse) {
                                 T bean;
-                                String body;
+                                String body = null;
                                 try {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
                                     LogUtil.json(body);
+
+                                    if (convert != null) {
+                                        body = convert.covert(body);
+                                    }
 
                                     if (type.isAssignableFrom(String.class)) {
                                         return (T) body;
@@ -117,10 +127,8 @@ public class Http {
                                     return bean;
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    //throw new RException(-1000, "服务器数据异常.", e.getMessage());
+                                    throw new HttpException(e, body);
                                 }
-                                //throw new NullPointerException("无数据.");
-                                return null;
                             }
                         });
             }
@@ -130,7 +138,8 @@ public class Http {
     /**
      * ResponseBody->List<T> 转换
      */
-    public static <T> Observable.Transformer<ResponseBody, List<T>> transformerListBean(final Class<T> type) {
+    public static <T> Observable.Transformer<ResponseBody, List<T>> transformerListBean(@NonNull final Class<T> type,
+                                                                                        @Nullable final IConvertString convert) {
         return new Observable.Transformer<ResponseBody, List<T>>() {
 
             @Override
@@ -140,27 +149,85 @@ public class Http {
                         .map(new Func1<ResponseBody, List<T>>() {
                             @Override
                             public List<T> call(ResponseBody stringResponse) {
-                                List<T> list = new ArrayList<>();
-                                String body;
+                                List<T> list;
+                                String body = null;
                                 try {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
                                     LogUtil.json(body);
 
+                                    if (convert != null) {
+                                        body = convert.covert(body);
+                                    }
+
                                     list = Json.from(body, TypeBuilder.newInstance(List.class).addTypeParam(type).build());
                                     return list;
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    //throw new RException(-1000, "服务器数据异常.", e.getMessage());
+                                    throw new HttpException(e, body);
                                 }
-                                //throw new NullPointerException("无数据.");
-                                return list;
                             }
-                        })
-                        ;
+                        });
             }
         };
     }
 
+    public static <T> Observable.Transformer<ResponseBody, List<T>> transformerListBean(@NonNull final Class<T> type) {
+        return transformerListBean(type, null);
+    }
+
+    public interface IConvertString {
+        String covert(String body);
+    }
+
+    public static String mapJson(String... args) {
+        return Json.to(map(args));
+    }
+
+    /**
+     * 组装参数
+     */
+    public static Map<String, String> map(String... args) {
+        final Map<String, String> map = new HashMap<>();
+        foreach(new OnPutValue() {
+            @Override
+            public void onValue(String key, String value) {
+                if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
+                    map.put(key, value);
+                }
+            }
+
+            @Override
+            public void onRemove(String key) {
+                map.remove(key);
+            }
+        }, args);
+        return map;
+    }
+
+    private static void foreach(OnPutValue onPutValue, String... args) {
+        if (onPutValue == null || args == null) {
+            return;
+        }
+        for (String str : args) {
+            String[] split = str.split(":");
+            if (split.length >= 2) {
+                String first = split[0];
+                if (TextUtils.isEmpty(split[1])) {
+                    onPutValue.onRemove(split[0]);
+                } else {
+                    onPutValue.onValue(first, str.substring(first.length() + 1));
+                }
+            } else if (split.length == 1) {
+                onPutValue.onRemove(split[0]);
+            }
+        }
+    }
+
+    interface OnPutValue {
+        void onValue(String key, String value);
+
+        void onRemove(String key);
+    }
 }

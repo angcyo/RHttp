@@ -247,7 +247,7 @@ public class LogUtil {
 
         String tag = (tagStr == null ? mGlobalTag : tagStr);
         String msg = (objects == null) ? NULL_TIPS : getObjectsString(objects);
-        String headString = "[ (" + className + ":" + lineNumber + ")#" + methodNameShort + "_>" + Thread.currentThread().getName() + " ] ";
+        String headString = "[ (" + className + ":" + lineNumber + ")#" + methodNameShort + "->" + Thread.currentThread().getName() + " ] ";
 
         return new String[]{tag, msg, headString};
     }

@@ -4,6 +4,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * https://github.com/ikidou/TypeBuilder
+ */
 public class TypeBuilder {
     private final TypeBuilder parent;
     private final Class raw;
@@ -23,7 +26,6 @@ public class TypeBuilder {
     private static TypeBuilder newInstance(Class raw, TypeBuilder parent) {
         return new TypeBuilder(raw, parent);
     }
-
 
     public TypeBuilder beginSubType(Class raw) {
         return newInstance(raw, this);

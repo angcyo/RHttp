@@ -1,6 +1,7 @@
 package com.angcyo.http;
 
 import android.util.JsonReader;
+import com.angcyo.http.type.TypeBuilder;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -25,6 +26,12 @@ import java.util.Map;
  * Version: 1.0.0
  */
 public class Json {
+
+    public static <T> List<T> fromList(String json, Class<T> type) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, TypeBuilder.newInstance(List.class).addTypeParam(type).build());
+    }
+
     public static <T> T from(String json, Class<T> type) {
         Gson gson = new Gson();
         return gson.fromJson(json, type);
