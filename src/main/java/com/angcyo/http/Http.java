@@ -117,6 +117,7 @@ public class Http {
 
                                     if (convert != null) {
                                         body = convert.covert(body);
+                                        LogUtil.json(body);
                                     }
 
                                     if (type.isAssignableFrom(String.class)) {
@@ -159,6 +160,7 @@ public class Http {
 
                                     if (convert != null) {
                                         body = convert.covert(body);
+                                        LogUtil.json(body);
                                     }
 
                                     list = Json.from(body, TypeBuilder.newInstance(List.class).addTypeParam(type).build());
