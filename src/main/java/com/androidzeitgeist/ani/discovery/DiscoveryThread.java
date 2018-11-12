@@ -16,16 +16,12 @@
 
 package com.androidzeitgeist.ani.discovery;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-
 import android.content.Intent;
 import android.util.Log;
+
+import java.io.IOException;
+import java.net.*;
+import java.nio.charset.Charset;
 
 /**
  * Internal class for handling the network connection of the {@link Discovery} class
@@ -115,7 +111,7 @@ class DiscoveryThread extends Thread {
                 String intentUri = new String(data, 0, length, Charset.forName("UTF-8"));
                 Intent intent = Intent.parseUri(intentUri, 0);
 
-                listener.onIntentDiscovered(packet.getAddress(), intent);
+                listener.onIntentDiscovered(packet.getAddress(), intent, data);
             } catch (URISyntaxException exception) {
                 Log.v(TAG, "Received UDP packet that could not be parsed as Intent");
             }

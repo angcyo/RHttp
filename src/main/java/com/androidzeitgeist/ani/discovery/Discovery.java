@@ -18,6 +18,7 @@ package com.androidzeitgeist.ani.discovery;
 
 import android.content.Intent;
 
+import android.support.annotation.NonNull;
 import com.androidzeitgeist.ani.internal.AndroidNetworkIntents;
 
 /**
@@ -75,7 +76,7 @@ public class Discovery {
      * @param listener The {@link DiscoveryListener} that will be notified about
      *                 incoming {@link Intent}s.
      */
-    public void setDisoveryListener(DiscoveryListener listener) {
+    public void setDisoveryListener(@NonNull DiscoveryListener listener) {
         this.listener = listener;
     }
 
@@ -93,7 +94,7 @@ public class Discovery {
      *                 incoming {@link Intent}s.
      * @throws DiscoveryException if discovery could not be enabled.
      */
-    public void enable(DiscoveryListener listener) throws DiscoveryException {
+    public void enable(@NonNull DiscoveryListener listener) throws DiscoveryException {
         setDisoveryListener(listener);
         enable();
     }

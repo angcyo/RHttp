@@ -1,12 +1,12 @@
 apply from: '../lib/lib_base.gradle'
 
 def retrofit_version = "2.4.0"
-def S_VER = '27.1.1'
+def _S_VER = hasProperty("S_VER") ? ext.S_VER : '27.1.1'
 def rxandroid_version = "1.2.1"
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly 'com.android.support:appcompat-v7:' + S_VER
+    compileOnly 'com.android.support:appcompat-v7:' + _S_VER
 
     /*https://github.com/square/retrofit*/
     api 'com.squareup.retrofit2:retrofit:' + retrofit_version

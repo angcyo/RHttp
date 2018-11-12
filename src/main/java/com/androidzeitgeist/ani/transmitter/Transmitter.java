@@ -16,17 +16,14 @@
 
 package com.androidzeitgeist.ani.transmitter;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
 import android.content.Intent;
-
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.androidzeitgeist.ani.discovery.Discovery;
 import com.androidzeitgeist.ani.internal.AndroidNetworkIntents;
+
+import java.io.IOException;
+import java.net.*;
 
 /**
  * Transmitter class for sending {@link Intent}s through network.
@@ -41,8 +38,8 @@ public class Transmitter {
      */
     public Transmitter() {
         this(
-            AndroidNetworkIntents.DEFAULT_MULTICAST_ADDRESS,
-            AndroidNetworkIntents.DEFAULT_PORT
+                AndroidNetworkIntents.DEFAULT_MULTICAST_ADDRESS,
+                AndroidNetworkIntents.DEFAULT_PORT
         );
     }
 
@@ -54,8 +51,8 @@ public class Transmitter {
      */
     public Transmitter(int port) {
         this(
-            AndroidNetworkIntents.DEFAULT_MULTICAST_ADDRESS,
-            port
+                AndroidNetworkIntents.DEFAULT_MULTICAST_ADDRESS,
+                port
         );
     }
 
@@ -64,7 +61,7 @@ public class Transmitter {
      * the given multicast address and port.
      *
      * @param multicastAddress The destination multicast address, e.g. 225.4.5.6.
-     * @param port The destination network port.
+     * @param port             The destination network port.
      */
     public Transmitter(String multicastAddress, int port) {
         this.multicastAddress = multicastAddress;
@@ -78,12 +75,31 @@ public class Transmitter {
      * @param intent The intent to send.
      * @throws TransmitterException if intent could not be transmitted.
      */
-    public void transmit(Intent intent) throws TransmitterException {
+    public void transmit(@NonNull Intent intent) throws TransmitterException {
         MulticastSocket socket = null;
 
         try {
             socket = createSocket();
-            transmit(socket, intent);
+            transmit(socket, intent, null);
+        } catch (UnknownHostException exception) {
+            throw new TransmitterException("Unknown host", exception);
+        } catch (SocketException exception) {
+            throw new TransmitterException("Can't create DatagramSocket", exception);
+        } catch (IOException exception) {
+            throw new TransmitterException("IOException during sending intent", exception);
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+    }
+
+    public void transmit(@NonNull byte[] data) throws TransmitterException {
+        MulticastSocket socket = null;
+
+        try {
+            socket = createSocket();
+            transmit(socket, null, data);
         } catch (UnknownHostException exception) {
             throw new TransmitterException("Unknown host", exception);
         } catch (SocketException exception) {
@@ -105,17 +121,25 @@ public class Transmitter {
      * Actual (private) implementation that serializes the {@link Intent} and sends
      * it as {@link DatagramPacket}. Used to separate the implementation from the
      * error handling code.
+     *
+     * @param data 如果data不为空, 优先使用.会忽略 intent 参数的值
      */
-    private void transmit(MulticastSocket socket, Intent intent) throws IOException {
-        byte[] data = intent.toUri(0).getBytes();
+    private void transmit(@NonNull MulticastSocket socket, @Nullable Intent intent, @Nullable byte[] data) throws IOException {
+        if (data == null) {
+            if (intent != null) {
+                data = intent.toUri(0).getBytes();
+            }
+        }
 
-        DatagramPacket packet = new DatagramPacket(
-            data,
-            data.length,
-            InetAddress.getByName(multicastAddress),
-            port
-        );
+        if (data != null) {
+            DatagramPacket packet = new DatagramPacket(
+                    data,
+                    data.length,
+                    InetAddress.getByName(multicastAddress),
+                    port
+            );
 
-        socket.send(packet);
+            socket.send(packet);
+        }
     }
 }
