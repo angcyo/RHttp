@@ -1,8 +1,8 @@
 package com.androidzeitgeist.ani.discovery;
 
-import java.net.InetAddress;
-
 import android.content.Intent;
+
+import java.net.InetAddress;
 
 /**
  * This adapter class provides empty implementations of the methods from
@@ -20,7 +20,9 @@ public abstract class DiscoveryAdapter implements DiscoveryListener {
      * @param intent The received {@link Intent}.
      */
     @Override
-    public abstract void onIntentDiscovered(InetAddress address, Intent intent);
+    public void onIntentDiscovered(InetAddress address, Intent intent, byte[] data) {
+        // Empty default implementation
+    }
 
     /**
      * The {@link Discovery} has been started and is now waiting for incoming
