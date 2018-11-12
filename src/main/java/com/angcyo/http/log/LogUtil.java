@@ -28,7 +28,7 @@ public class LogUtil {
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String NULL_TIPS = "Log with null object";
 
-    private static final String DEFAULT_MESSAGE = "test here";
+    private static final String DEFAULT_MESSAGE = "Test Message Here.";
     private static final String PARAM = "Param";
     private static final String NULL = "null";
     private static final String TAG_DEFAULT = "HttpLogUtil";

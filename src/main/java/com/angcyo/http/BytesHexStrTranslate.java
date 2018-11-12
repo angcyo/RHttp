@@ -51,6 +51,18 @@ public class BytesHexStrTranslate {
         return new String(buf);
     }
 
+    public static String bytesToHexFun2(byte[] bytes, int start /*包含*/, int end /*不包含*/) {
+        char[] buf = new char[(end - start) * 2];
+        int index = 0;
+        for (int i = start; i < end; i++) {
+            byte b = bytes[i];
+            buf[index++] = HEX_CHAR[b >>> 4 & 0xf];
+            buf[index++] = HEX_CHAR[b & 0xf];
+        }
+        return new String(buf);
+    }
+
+
     /**
      * 方法三：
      * byte[] to hex string

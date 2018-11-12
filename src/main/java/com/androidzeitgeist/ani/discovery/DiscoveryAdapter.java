@@ -20,7 +20,7 @@ public abstract class DiscoveryAdapter implements DiscoveryListener {
      * @param intent The received {@link Intent}.
      */
     @Override
-    public void onIntentDiscovered(InetAddress address, Intent intent, byte[] data) {
+    public void onIntentDiscovered(InetAddress address, Intent intent, byte[] data, int length) {
         // Empty default implementation
     }
 

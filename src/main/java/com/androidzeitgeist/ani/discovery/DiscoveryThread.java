@@ -111,7 +111,7 @@ class DiscoveryThread extends Thread {
                 String intentUri = new String(data, 0, length, Charset.forName("UTF-8"));
                 Intent intent = Intent.parseUri(intentUri, 0);
 
-                listener.onIntentDiscovered(packet.getAddress(), intent, data);
+                listener.onIntentDiscovered(packet.getAddress(), intent, data, length);
             } catch (URISyntaxException exception) {
                 Log.v(TAG, "Received UDP packet that could not be parsed as Intent");
             }
