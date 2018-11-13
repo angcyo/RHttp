@@ -107,6 +107,10 @@ public class UDP {
         return BytesHexStrTranslate.bytesToHexFun2(data);
     }
 
+    public static String[] hexStringArray(@NotNull byte[] data) {
+        return hexStringToStringArray(BytesHexStrTranslate.bytesToHexFun2(data));
+    }
+
     /**
      * byte 十进制转换成 十六进制字符串
      */
@@ -225,6 +229,10 @@ public class UDP {
         return builder.toString();
     }
 
+    public static String reverse(@NotNull String hexString) {
+        return reverse(hexStringToStringArray(hexString));
+    }
+
     /**
      * 将ip格式(192.168.0.0) 转换成 十六进制 C0A80000
      */
@@ -243,5 +251,25 @@ public class UDP {
             }
         }
         return result.toString();
+    }
+
+    /**
+     * int整型字符串, 转换成 十六进制字符
+     * 3659533 (十进制) -> 0x37D70D
+     */
+    public static String stringToHexString(@NotNull String intString,
+                                           int size /*需要输出多少个字节, 1个字节等于8位, 等于2位十六进制*/) {
+        String hexString = "";
+        try {
+            hexString = Integer.toHexString(Integer.parseInt(intString));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < size * 2 - hexString.length(); i++) {
+            builder.append("0");
+        }
+        builder.append(hexString);
+        return builder.toString();
     }
 }
