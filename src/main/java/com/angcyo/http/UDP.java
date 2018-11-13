@@ -36,15 +36,25 @@ public class UDP {
         new Transmitter(address, port).transmit(data);
     }
 
+    public static byte[] sendAndReceive(String address, int port, @NonNull byte[] data) {
+        return sendAndReceive(address, port, data, 0);
+    }
+
     /**
      * 请在子线程中执行
+     *
+     * @param timeOut 大于0,表示设置超时. 未设置超时将一直等待接收数据
      */
-    public static byte[] sendAndReceive(String address, int port, @NonNull byte[] data) {
+    public static byte[] sendAndReceive(String address, int port, @NonNull byte[] data, int timeOut /*毫秒*/) {
         MulticastSocket socket = null;
         byte[] result = null;
 
         try {
             socket = new MulticastSocket();
+
+            if (timeOut > 0) {
+                socket.setSoTimeout(timeOut);
+            }
 
             //发送数据
             DatagramPacket packet = new DatagramPacket(
@@ -87,6 +97,10 @@ public class UDP {
         }
         System.arraycopy(fill, 0, data, 0, fill.length);
         return data;
+    }
+
+    public static void bindData(@NonNull byte[] src, @NonNull byte[] fill, int offset) {
+        System.arraycopy(fill, 0, src, offset, fill.length);
     }
 
     public static String hexString(@NotNull byte[] data) {
@@ -152,6 +166,23 @@ public class UDP {
             if (i > 0 && i % 2 == 0) {
                 String substring = hex.substring(i - 2, i);
                 result[index++] = Integer.parseInt(substring, 16);
+            }
+        }
+        return result;
+    }
+
+    public static byte[] hexStringToByteArray(@NotNull String hex) {
+        hex = fixHexString(hex);
+
+        int size = hex.length() / 2;
+
+        byte[] result = new byte[size];
+
+        int index = 0;
+        for (int i = 0; i <= hex.length(); i += 2) {
+            if (i > 0 && i % 2 == 0) {
+                String substring = hex.substring(i - 2, i);
+                result[index++] = (byte) Integer.parseInt(substring, 16);
             }
         }
         return result;
