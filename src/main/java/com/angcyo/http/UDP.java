@@ -224,4 +224,24 @@ public class UDP {
         }
         return builder.toString();
     }
+
+    /**
+     * 将ip格式(192.168.0.0) 转换成 十六进制 C0A80000
+     */
+    public static String ipToHexString(@NotNull String ip) {
+        StringBuilder result = new StringBuilder();
+        String[] split = ip.split("\\.");
+        for (int i = 0; i < 4; i++) {
+            if (i < split.length) {
+                String upperCase = Integer.toHexString(Integer.parseInt(split[i])).toUpperCase();
+                if (upperCase.length() < 2) {
+                    result.append("0");
+                }
+                result.append(upperCase);
+            } else {
+                result.append("00");
+            }
+        }
+        return result.toString();
+    }
 }
