@@ -169,6 +169,8 @@ public final class HttpLoggingInterceptorM implements Interceptor {
         logger.log(requestStartMessage, LogUtil.D);
 
         if (logHeaders) {
+
+            /*打印Content-Type*/
             if (hasRequestBody) {
                 // Request body headers are only present when installed as a network interceptor. Force
                 // them to be included (when available) so there values are known.
@@ -180,6 +182,7 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 }
             }
 
+            /*打印请求体*/
             Headers headers = request.headers();
             for (int i = 0, count = headers.size(); i < count; i++) {
                 String name = headers.name(i);
@@ -189,6 +192,7 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 }
             }
 
+            /*请求打印结束*/
             if (!logBody || !hasRequestBody) {
                 logger.log("--> END " + request.method(), LogUtil.D);
             } else if (bodyEncoded(request.headers())) {
@@ -217,9 +221,7 @@ public final class HttpLoggingInterceptorM implements Interceptor {
             }
         }
 
-        /*
-            请求完后打印ResponseBody
-         */
+        /* 请求完后打印ResponseBody,  打印返回体 */
         ResponseBody responseBody = response.body();
         long contentLength = responseBody.contentLength();
         String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
