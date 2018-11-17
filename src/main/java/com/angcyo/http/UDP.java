@@ -26,7 +26,8 @@ public class UDP {
      * 循环接收UDP的数据
      */
     public static Discovery receive(int port, @NonNull DiscoveryListener listener) throws DiscoveryException {
-        Discovery discovery = new Discovery("255.255.255.255", port);
+        //java.io.IOException: Not a multicast group: /192.168.0.98
+        Discovery discovery = new Discovery(port);
         discovery.enable(listener);
         return discovery;
     }

@@ -17,6 +17,7 @@
 package com.androidzeitgeist.ani.discovery;
 
 import android.content.Intent;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 
@@ -50,5 +51,5 @@ public interface DiscoveryListener {
      * @param address The IP address of the sender of the {@link Intent}.
      * @param intent  The received {@link Intent}.
      */
-    public void onIntentDiscovered(InetAddress address, Intent intent, byte[] datam, int length);
+    public void onIntentDiscovered(@NotNull InetAddress address, @NotNull Intent intent, @NotNull byte[] datam, int length);
 }

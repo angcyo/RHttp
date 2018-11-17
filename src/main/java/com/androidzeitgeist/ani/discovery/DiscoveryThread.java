@@ -105,13 +105,17 @@ class DiscoveryThread extends Thread {
                 socket.receive(packet);
 
                 byte[] data = packet.getData();
-                int length = packet.getLength();
+                if (data != null) {
+                    int length = packet.getLength();
 
-                //String intentUri2 = new String(data, 0, length, Charset.forName("gbk"));
-                String intentUri = new String(data, 0, length, Charset.forName("UTF-8"));
-                Intent intent = Intent.parseUri(intentUri, 0);
+                    //String intentUri2 = new String(data, 0, length, Charset.forName("gbk"));
+                    String intentUri = new String(data, 0, length, Charset.forName("UTF-8"));
+                    Intent intent = Intent.parseUri(intentUri, 0);
 
-                listener.onIntentDiscovered(packet.getAddress(), intent, data, length);
+                    byte[] result = new byte[length];
+                    System.arraycopy(data, 0, result, 0, length);
+                    listener.onIntentDiscovered(packet.getAddress(), intent, result, length);
+                }
             } catch (URISyntaxException exception) {
                 Log.v(TAG, "Received UDP packet that could not be parsed as Intent");
             }
