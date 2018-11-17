@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class Http {
     public static int TIME_OUT = 5_000;
     public static String BASE_URL = "http://www.api.com";
+    public static final String TAG = "HttpResult";
 
     public static Retrofit.Builder builder(String baseUrl, String logTag) {
         HttpLoggingInterceptorM httpLoggingInterceptorM = new HttpLoggingInterceptorM(new LogInterceptor(logTag));
@@ -113,11 +114,16 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    LogUtil.json(body);
+                                    LogUtil.json(TAG, body);
 
                                     if (convert != null) {
-                                        body = convert.covert(body);
-                                        LogUtil.json(body);
+                                        String covert = convert.covert(body);
+                                        if (TextUtils.equals(covert, body)) {
+                                            LogUtil.i("IConvertString 转换前后一致");
+                                        } else {
+                                            LogUtil.json("转换后", body);
+                                        }
+                                        body = covert;
                                     }
 
                                     if (type.isAssignableFrom(String.class)) {
@@ -156,11 +162,16 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    LogUtil.json(body);
+                                    LogUtil.json(TAG, body);
 
                                     if (convert != null) {
-                                        body = convert.covert(body);
-                                        LogUtil.json(body);
+                                        String covert = convert.covert(body);
+                                        if (TextUtils.equals(covert, body)) {
+                                            LogUtil.i("IConvertString 转换前后一致");
+                                        } else {
+                                            LogUtil.json("转换后", body);
+                                        }
+                                        body = covert;
                                     }
 
                                     list = Json.from(body, TypeBuilder.newInstance(List.class).addTypeParam(type).build());

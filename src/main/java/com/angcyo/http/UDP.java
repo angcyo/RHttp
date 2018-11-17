@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Email:angcyo@126.com
@@ -83,6 +85,53 @@ public class UDP {
         }
 
         return result;
+    }
+
+    /**
+     * 短时间之内, 循环接收消息
+     */
+    public static List<byte[]> sendAndReceiveList(String address, int port, @NonNull byte[] data, int timeOut /*毫秒*/) {
+        MulticastSocket socket = null;
+        List<byte[]> resultList = new ArrayList<>();
+
+        try {
+            socket = new MulticastSocket();
+
+            if (timeOut > 0) {
+                socket.setSoTimeout(timeOut);
+            }
+
+            //发送数据
+            DatagramPacket packet = new DatagramPacket(
+                    data,
+                    data.length,
+                    InetAddress.getByName(address),
+                    port
+            );
+            socket.send(packet);
+
+            Thread.sleep(200);
+
+            while (timeOut > 0) {
+                byte[] result;
+                //接收数据
+                packet = new DatagramPacket(new byte[102400], 102400);
+                socket.receive(packet);
+                byte[] bytes = packet.getData();
+                int length = packet.getLength();
+                result = new byte[length];
+                System.arraycopy(bytes, 0, result, 0, length);
+
+                resultList.add(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+        return resultList;
     }
 
     /**
