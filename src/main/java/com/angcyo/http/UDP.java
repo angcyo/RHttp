@@ -189,11 +189,19 @@ public class UDP {
         return builder.toString();
     }
 
+    /**
+     * 将 CE95160F -> 206.149.22.14
+     */
     public static String formatHexToInt(@NotNull String hex, char split) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i <= hex.length(); i += 2) {
             if (i > 0 && i % 2 == 0) {
-                builder.append(Integer.parseInt(hex.substring(i - 2, i), 16));
+                try {
+                    builder.append(Integer.parseInt(hex.substring(i - 2, i), 16));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    builder.append("00");
+                }
 
                 //最后面不需要添加分隔符
                 if (i != hex.length()) {
@@ -258,7 +266,10 @@ public class UDP {
         return result;
     }
 
-    private static String fixHexString(@NotNull String hex) {
+    /**
+     * 不足偶数位时, 向前补0
+     */
+    public static String fixHexString(@NotNull String hex) {
         hex = hex.replaceAll(" ", "");
         if (hex.length() % 2 != 0) {
             //补齐
