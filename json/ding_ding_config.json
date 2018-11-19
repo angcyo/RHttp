@@ -3,5 +3,5 @@
   "taskId": "10000003",
   "device": "all",
   "deviceIgnore": "",
-  "task": 800
+  "task": -1
 }
