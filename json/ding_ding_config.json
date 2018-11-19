@@ -1,7 +1,7 @@
 {
   "enable": 1,
-  "taskId": "10000002",
+  "taskId": "10000003",
   "device": "all",
   "deviceIgnore": "",
-  "task": 801
+  "task": 800
 }
