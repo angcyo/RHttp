@@ -1,5 +1,6 @@
 package com.angcyo.http;
 
+import android.support.annotation.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -114,9 +115,20 @@ public class Rx<Rx> extends Observable<Rx> {
                     }
                 },
                 new HttpSubscriber<String>() {
+
+                    @Override
+                    public void onStart() {
+                        //super.onStart();
+                    }
+
                     @Override
                     public void onSucceed(String bean) {
                         super.onSucceed(bean);
+                    }
+
+                    @Override
+                    public void onEnd(@Nullable String data, @Nullable Throwable error) {
+                        //super.onEnd(data, error);
                     }
                 });
     }
