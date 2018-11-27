@@ -9,11 +9,17 @@ dependencies {
     compileOnly 'com.android.support:appcompat-v7:' + _S_VER
 
     /*https://github.com/square/retrofit*/
-    api 'com.squareup.retrofit2:retrofit:' + retrofit_version
-    api 'com.squareup.retrofit2:adapter-rxjava:' + retrofit_version
-    api 'com.squareup.retrofit2:converter-gson:' + retrofit_version
+    api('com.squareup.retrofit2:retrofit:' + retrofit_version) {
+        exclude group: 'com.squareup.okhttp3'
+    }
+    api('com.squareup.retrofit2:adapter-rxjava:' + retrofit_version) {
+        exclude group: 'com.squareup.okhttp3'
+    }
+    api('com.squareup.retrofit2:converter-gson:' + retrofit_version) {
+        exclude group: 'com.squareup.okhttp3'
+    }
 
-    //compile 'com.squareup.okhttp3:okhttp:3.11.0'
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
 
 //    +--- com.squareup.retrofit2:retrofit:2.4.0
 //    |    \--- com.squareup.okhttp3:okhttp:3.10.0
