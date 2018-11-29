@@ -1,7 +1,7 @@
 {
-  "versionCode": 40,
-  "versionName": "3.3.1",
-  "des": "添加了一些日志输出",
+  "versionCode": 42,
+  "versionName": "3.3.3",
+  "des": "添加了一些日志输出\n添加跳过自定义日期",
   "force": 0,
-  "url": "https://raw.githubusercontent.com/angcyo/app/master/DingDing/DingDing-3.3.1_2018-11-29_apk_release_angcyo.apk"
+  "url": "https://raw.githubusercontent.com/angcyo/app/master/DingDing/DingDing-3.3.3_2018-11-29_apk_release_angcyo.apk"
 }
