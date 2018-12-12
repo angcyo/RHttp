@@ -8,7 +8,9 @@ import com.angcyo.http.log.LogInterceptor;
 import com.angcyo.http.log.LogUtil;
 import com.angcyo.http.progress.ProgressIntercept;
 import com.angcyo.http.type.TypeBuilder;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -236,6 +238,10 @@ public class Http {
                 onPutValue.onRemove(split[0]);
             }
         }
+    }
+
+    public static RequestBody getJsonBody(String json) {
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
     }
 
     interface OnPutValue {
