@@ -8,11 +8,9 @@ import com.angcyo.http.log.LogInterceptor;
 import com.angcyo.http.log.LogUtil;
 import com.angcyo.http.progress.ProgressIntercept;
 import com.angcyo.http.type.TypeBuilder;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import retrofit2.Retrofit;
+import retrofit2.RetrofitServiceMapping;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
@@ -20,6 +18,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,21 +57,24 @@ public class Http {
                 ;
     }
 
+    public static <T> T create(Class<T> service) {
+        return create(BASE_URL, service);
+    }
 
     public static <T> T create(String baseUrl, Class<T> service) {
         return create(builder(baseUrl, "app->").build(), service);
     }
 
+    /**
+     * 创建接口
+     */
     public static <T> T create(Retrofit retrofit, Class<T> service) {
-        return retrofit.create(service);
+        return RetrofitServiceMapping.mapping(retrofit, service).create(service);
     }
 
-    public static <T> T create(Class<T> service) {
-        return create(BASE_URL, service);
-    }
 
     /**
-     * 现成调度转换
+     * 默认调度转换
      */
     public static <T> Observable.Transformer<T, T> defaultTransformer() {
         return new Observable.Transformer<T, T>() {
@@ -242,6 +244,40 @@ public class Http {
 
     public static RequestBody getJsonBody(String json) {
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+    }
+
+    /**
+     * 简单的OkHttp网络请求
+     */
+    public static void request(@NonNull String url, @Nullable final OnHttpRequestCallback callback) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        Request request = new Request.Builder().url(url).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                ResponseBody responseBody = response.body();
+                String body;
+                if (responseBody == null || responseBody.contentLength() == 0) {
+                    body = "";
+                } else {
+                    body = responseBody.string();
+                }
+
+                if (callback != null) {
+                    callback.onRequestCallback(body);
+                }
+            }
+        });
+    }
+
+    public interface OnHttpRequestCallback {
+        void onRequestCallback(@NonNull String body);
     }
 
     interface OnPutValue {
