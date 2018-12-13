@@ -125,7 +125,7 @@ public class Http {
                                         if (TextUtils.equals(covert, body)) {
                                             LogUtil.i("IConvertString 转换前后一致");
                                         } else {
-                                            LogUtil.json("转换后", body);
+                                            LogUtil.json("转换后", covert);
                                         }
                                         body = covert;
                                     }
@@ -173,7 +173,7 @@ public class Http {
                                         if (TextUtils.equals(covert, body)) {
                                             LogUtil.i("IConvertString 转换前后一致");
                                         } else {
-                                            LogUtil.json("转换后", body);
+                                            LogUtil.json("转换后", covert);
                                         }
                                         body = covert;
                                     }
