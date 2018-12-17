@@ -12,7 +12,6 @@ public class TypeBuilder {
     private final Class raw;
     private final List<Type> args = new ArrayList<>();
 
-
     private TypeBuilder(Class raw, TypeBuilder parent) {
         assert raw != null;
         this.raw = raw;
@@ -21,6 +20,14 @@ public class TypeBuilder {
 
     public static TypeBuilder newInstance(Class raw) {
         return new TypeBuilder(raw, null);
+    }
+
+    /**
+     * List<String>;
+     * Bean<Data>;
+     */
+    public static Type build(Class raw, Class type) {
+        return newInstance(raw).addTypeParam(type).build();
     }
 
     private static TypeBuilder newInstance(Class raw, TypeBuilder parent) {
