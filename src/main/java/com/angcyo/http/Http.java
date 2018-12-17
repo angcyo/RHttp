@@ -36,25 +36,29 @@ public class Http {
     public static final String TAG = "HttpResult";
 
     public static Retrofit.Builder builder(String baseUrl, String logTag) {
-        HttpLoggingInterceptorM httpLoggingInterceptorM = new HttpLoggingInterceptorM(new LogInterceptor(logTag));
-        if (BuildConfig.DEBUG) {
-            httpLoggingInterceptorM.setLevel(HttpLoggingInterceptorM.Level.BODY);
-        }
+        return builder(defaultOkHttpClick(logTag).build(), baseUrl);
+    }
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
-                .readTimeout(TIME_OUT, TimeUnit.SECONDS)
-                .writeTimeout(TIME_OUT, TimeUnit.SECONDS)
-                .addNetworkInterceptor(httpLoggingInterceptorM)
-                .addNetworkInterceptor(new ProgressIntercept())
-                .build();
-
+    public static Retrofit.Builder builder(OkHttpClient client, String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 ;
+    }
+
+    public static OkHttpClient.Builder defaultOkHttpClick(String logTag) {
+        HttpLoggingInterceptorM httpLoggingInterceptorM = new HttpLoggingInterceptorM(new LogInterceptor(logTag));
+        if (BuildConfig.DEBUG) {
+            httpLoggingInterceptorM.setLevel(HttpLoggingInterceptorM.Level.BODY);
+        }
+        return new OkHttpClient.Builder()
+                .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
+                .readTimeout(TIME_OUT, TimeUnit.SECONDS)
+                .writeTimeout(TIME_OUT, TimeUnit.SECONDS)
+                .addNetworkInterceptor(httpLoggingInterceptorM)
+                .addNetworkInterceptor(new ProgressIntercept());
     }
 
     public static <T> T create(Class<T> service) {
@@ -71,7 +75,6 @@ public class Http {
     public static <T> T create(Retrofit retrofit, Class<T> service) {
         return RetrofitServiceMapping.mapping(retrofit, service).create(service);
     }
-
 
     /**
      * 默认调度转换
