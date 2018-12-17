@@ -56,11 +56,25 @@ public class RetrofitServiceMapping {
             try {
                 String mapUrl = map.get(method.getName());
                 if (!TextUtils.isEmpty(mapUrl)) {
-                    ServiceMethod.Builder methodBuilder = new ServiceMethod.Builder(retrofit, method);
-                    ServiceMethod serviceMethod = methodBuilder.build();
-                    Reflect.setFieldValue(serviceMethod, "relativeUrl", mapUrl);
-                    Map<Method, ServiceMethod> serviceMethodCache = (Map<Method, ServiceMethod>) Reflect.getMember(retrofit, "serviceMethodCache");
-                    serviceMethodCache.put(method, serviceMethod);
+                    //retrofit 2.5
+                    ServiceMethod serviceMethod = ServiceMethod.parseAnnotations(retrofit, method);
+                    if (serviceMethod instanceof HttpServiceMethod) {
+                        RequestFactory requestFactory = (RequestFactory) Reflect.getMember(HttpServiceMethod.class, serviceMethod, "requestFactory");
+                        Reflect.setFieldValue(requestFactory, "relativeUrl", mapUrl);
+
+                        Map<Method, ServiceMethod> serviceMethodCache = (Map<Method, ServiceMethod>) Reflect.getMember(retrofit, "serviceMethodCache");
+                        serviceMethodCache.put(method, serviceMethod);
+                    }
+                    //end
+
+                    //retrofit 2.4
+                    //ServiceMethod.Builder methodBuilder = new ServiceMethod.Builder(retrofit, method);
+                    //ServiceMethod serviceMethod = methodBuilder.build();
+                    //Reflect.setFieldValue(serviceMethod, "relativeUrl", mapUrl);
+                    //Map<Method, ServiceMethod> serviceMethodCache = (Map<Method, ServiceMethod>) Reflect.getMember(retrofit, "serviceMethodCache");
+                    //serviceMethodCache.put(method, serviceMethod);
+                    //end
+
                     //Log.i("angcyo", "succeed");
                 }
             } catch (Exception e) {
