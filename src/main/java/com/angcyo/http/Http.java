@@ -18,7 +18,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +104,57 @@ public class Http {
      */
     public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final Class<T> type) {
         return transformerBean(type, null);
+    }
+
+    public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final Type type) {
+        return transformerBean(new IConvertJson<T>() {
+            @Override
+            public T covert(String body) {
+                if (String.class.getName().contains(type.toString())) {
+                    return (T) body;
+                }
+                return Json.from(body, type);
+            }
+        }, null);
+    }
+
+    public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final IConvertJson<T> convertJson,
+                                                                              @Nullable final IConvertString convertString) {
+        return new Observable.Transformer<ResponseBody, T>() {
+
+            @Override
+            public Observable<T> call(Observable<ResponseBody> responseObservable) {
+                return responseObservable
+                        .compose(Http.<ResponseBody>defaultTransformer())
+                        .map(new Func1<ResponseBody, T>() {
+                            @Override
+                            public T call(ResponseBody stringResponse) {
+                                String body = null;
+                                try {
+                                    body = stringResponse.string();
+
+                                    //"接口返回数据-->\n" +
+                                    LogUtil.json(TAG, body);
+
+                                    if (convertString != null) {
+                                        String covert = convertString.covert(body);
+                                        if (TextUtils.equals(covert, body)) {
+                                            LogUtil.i("IConvertString 转换前后一致");
+                                        } else {
+                                            LogUtil.json("转换后", covert);
+                                        }
+                                        body = covert;
+                                    }
+
+                                    return convertJson.covert(body);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    throw new HttpException(e, body);
+                                }
+                            }
+                        });
+            }
+        };
     }
 
     public static <T> Observable.Transformer<ResponseBody, T> transformerBean(@NonNull final Class<T> type,
@@ -201,6 +254,10 @@ public class Http {
         String covert(String body);
     }
 
+    public interface IConvertJson<T> {
+        T covert(String body);
+    }
+
     public static String mapJson(String... args) {
         return Json.to(map(args));
     }
@@ -247,6 +304,45 @@ public class Http {
 
     public static RequestBody getJsonBody(String json) {
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+    }
+
+    public static RequestBody getFileBody(String filePath) {
+        return RequestBody.create(MultipartBody.FORM, new File(filePath));
+    }
+
+    public static RequestBody getMultipart(String filePath, String json) {
+        return new MultipartBody.Builder()
+                .addPart(getFileBody(filePath))
+                .addPart(getJsonBody(json))
+                .build();
+    }
+
+    /**
+     * 表单形式上传文件, 和其他参数
+     */
+    public static RequestBody fileForm(String fileFormKey, String filePath, String... otherValues) {
+        File file = new File(filePath);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
+        MultipartBody.Part fileBody = MultipartBody.Part.createFormData(fileFormKey, file.getName(), requestFile);
+
+        final MultipartBody.Builder builder = new MultipartBody.Builder()
+                .addPart(fileBody);
+
+        foreach(new OnPutValue() {
+            @Override
+            public void onValue(String key, String value) {
+                if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
+                    builder.addFormDataPart(key, value);
+                }
+            }
+
+            @Override
+            public void onRemove(String key) {
+
+            }
+        }, otherValues);
+
+        return builder.build();
     }
 
     /**

@@ -30,6 +30,10 @@ public class TypeBuilder {
         return newInstance(raw).addTypeParam(type).build();
     }
 
+    public static Type build(Class raw) {
+        return newInstance(raw).build();
+    }
+
     private static TypeBuilder newInstance(Class raw, TypeBuilder parent) {
         return new TypeBuilder(raw, parent);
     }
