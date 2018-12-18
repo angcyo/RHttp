@@ -283,21 +283,30 @@ public class Http {
         return map;
     }
 
-    private static void foreach(OnPutValue onPutValue, String... args) {
+    private static void foreach(@Nullable OnPutValue onPutValue, String... args) {
         if (onPutValue == null || args == null) {
             return;
         }
         for (String str : args) {
-            String[] split = str.split(":");
-            if (split.length >= 2) {
-                String first = split[0];
-                if (TextUtils.isEmpty(split[1])) {
-                    onPutValue.onRemove(split[0]);
+            if (TextUtils.isEmpty(str)) {
+                continue;
+            }
+
+            int indexOf = str.indexOf(':');
+            int length = str.length();
+            if (indexOf != -1) {
+                String key = str.substring(0, indexOf);
+
+                if (indexOf == length) {
+                    onPutValue.onRemove(key);
                 } else {
-                    onPutValue.onValue(first, str.substring(first.length() + 1));
+                    String value = str.substring(indexOf + 1, length);
+                    if (TextUtils.isEmpty(value)) {
+                        onPutValue.onRemove(key);
+                    } else {
+                        onPutValue.onValue(key, str.substring(key.length() + 1));
+                    }
                 }
-            } else if (split.length == 1) {
-                onPutValue.onRemove(split[0]);
             }
         }
     }
@@ -321,12 +330,14 @@ public class Http {
      * 表单形式上传文件, 和其他参数
      */
     public static RequestBody fileForm(String fileFormKey, String filePath, String... otherValues) {
-        File file = new File(filePath);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
-        MultipartBody.Part fileBody = MultipartBody.Part.createFormData(fileFormKey, file.getName(), requestFile);
+        final MultipartBody.Builder builder = new MultipartBody.Builder();
 
-        final MultipartBody.Builder builder = new MultipartBody.Builder()
-                .addPart(fileBody);
+        File file = new File(filePath);
+        if (file.exists()) {
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
+            MultipartBody.Part fileBody = MultipartBody.Part.createFormData(fileFormKey, file.getName(), requestFile);
+            builder.addPart(fileBody);
+        }
 
         foreach(new OnPutValue() {
             @Override
