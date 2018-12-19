@@ -332,11 +332,13 @@ public class Http {
     public static RequestBody fileForm(String fileFormKey, String filePath, String... otherValues) {
         final MultipartBody.Builder builder = new MultipartBody.Builder();
 
-        File file = new File(filePath);
-        if (file.exists()) {
-            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
-            MultipartBody.Part fileBody = MultipartBody.Part.createFormData(fileFormKey, file.getName(), requestFile);
-            builder.addPart(fileBody);
+        if (!TextUtils.isEmpty(filePath)) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
+                MultipartBody.Part fileBody = MultipartBody.Part.createFormData(fileFormKey, file.getName(), requestFile);
+                builder.addPart(fileBody);
+            }
         }
 
         foreach(new OnPutValue() {
