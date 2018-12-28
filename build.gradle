@@ -1,4 +1,8 @@
-apply from: '../lib/lib_base.gradle'
+if (getRootProject().hasProperty("allGradle")) {
+    apply from: allGradle.lib_base
+} else {
+    apply from: '../lib/lib_base.gradle'
+}
 
 def retrofit_version = "2.5.0"
 def _S_VER = hasProperty("S_VER") ? ext.S_VER : '27.1.1'
