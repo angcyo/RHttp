@@ -2,10 +2,10 @@ package com.angcyo.http.progress;
 
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import java.io.IOException;
