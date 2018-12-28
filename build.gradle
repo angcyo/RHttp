@@ -8,7 +8,7 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly 'com.android.support:appcompat-v7:' + _S_VER
 
-    /*https://github.com/square/retrofit*/
+    //https://github.com/square/retrofit
     api('com.squareup.retrofit2:retrofit:' + retrofit_version) {
         exclude group: 'com.squareup.okhttp3'
     }
@@ -19,8 +19,10 @@ dependencies {
         exclude group: 'com.squareup.okhttp3'
     }
 
+    //https://github.com/square/okhttp/
     api 'com.squareup.okhttp3:okhttp:3.12.0'
 
+    //https://github.com/ReactiveX/RxJava/
 //    +--- com.squareup.retrofit2:retrofit:2.4.0
 //    |    \--- com.squareup.okhttp3:okhttp:3.10.0
 //    |         \--- com.squareup.okio:okio:1.14.0
