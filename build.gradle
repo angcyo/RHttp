@@ -1,4 +1,4 @@
-if (getRootProject().hasProperty("allGradle")) {
+if (rootProject.hasProperty("allGradle")) {
     apply from: allGradle.lib_base
 } else {
     apply from: '../lib/lib_base.gradle'
