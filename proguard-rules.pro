@@ -62,3 +62,4 @@
 -keep class retrofit2.Retrofit
 -keep class retrofit2.RequestFactory
 -keep class retrofit2.HttpServiceMethod
+-keep class com.angcyo.http.** {*;}
