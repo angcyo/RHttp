@@ -265,8 +265,8 @@ public class Http {
     /**
      * 组装参数
      */
-    public static Map<String, String> map(String... args) {
-        final Map<String, String> map = new HashMap<>();
+    public static Map<String, Object> map(String... args) {
+        final Map<String, Object> map = new HashMap<>();
         foreach(new OnPutValue() {
             @Override
             public void onValue(String key, String value) {
