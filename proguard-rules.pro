@@ -63,3 +63,4 @@
 -keep class retrofit2.RequestFactory
 -keep class retrofit2.HttpServiceMethod
 -keep class com.angcyo.http.** {*;}
+-keep class okhttp3.** {*;}

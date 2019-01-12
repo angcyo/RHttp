@@ -9,7 +9,9 @@ import okio.Buffer;
 import okio.BufferedSource;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.UUID;
@@ -50,7 +52,6 @@ public class HttpLogFileInterceptor implements Interceptor {
         StringBuilder responseBuilder = new StringBuilder("Response->");
         responseBuilder.append(uuid);
         responseBuilder.append("\n");
-
 
         /*
             打印开始开始请求
@@ -108,17 +109,35 @@ public class HttpLogFileInterceptor implements Interceptor {
                 Buffer buffer = new Buffer();
                 for (MultipartBody.Part part : ((MultipartBody) requestBody).parts()) {
                     RequestBody body = part.body();
+                    Headers partBodyHeaders = part.headers();
+
+                    if (partBodyHeaders != null) {
+                        requestBuilder.append(partBodyHeaders);
+                    }
+
                     if (body.contentType() == null) {
                         buffer.clear();
                         Charset charset = UTF8;
                         //字符串键值对
                         body.writeTo(buffer);
 
-                        requestBuilder.append(part.headers().toString());
                         requestBuilder.append(buffer.readString(charset)).append("\n");
                     } else {
-                        requestBuilder.append(body.contentType().toString()).append(" ");
-                        requestBuilder.append(ProgressIntercept.formatSize(body.contentLength())).append("\n");
+                        try {
+                            requestBuilder.append(body.contentType().toString()).append(" ");
+                            requestBuilder.append(ProgressIntercept.formatSize(body.contentLength())).append("\n");
+
+                            Field[] fields = part.body().getClass().getDeclaredFields();
+                            for (Field f : fields) {
+                                if (f.getName().contains("file")) {
+                                    f.setAccessible(true);
+                                    File file = (File) f.get(part.body());
+                                    requestBuilder.append(file.getAbsolutePath()).append("\n");
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             } else {
@@ -142,7 +161,6 @@ public class HttpLogFileInterceptor implements Interceptor {
         } else {
             requestBuilder.append("No Request Body.");
         }
-        requestBuilder.append("\n");
 
         try {
             if (onHttpLogIntercept != null) {

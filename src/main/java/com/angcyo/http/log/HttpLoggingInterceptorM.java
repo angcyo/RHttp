@@ -9,7 +9,9 @@ import okio.Buffer;
 import okio.BufferedSource;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.concurrent.TimeUnit;
@@ -208,17 +210,35 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 Buffer buffer = new Buffer();
                 for (MultipartBody.Part part : ((MultipartBody) requestBody).parts()) {
                     RequestBody body = part.body();
+                    Headers partBodyHeaders = part.headers();
+
+                    if (partBodyHeaders != null) {
+                        logger.log(partBodyHeaders.toString(), LogUtil.D);
+                    }
+
                     if (body.contentType() == null) {
                         buffer.clear();
                         Charset charset = UTF8;
                         //字符串键值对
                         body.writeTo(buffer);
 
-                        logger.log(part.headers().toString(), LogUtil.D);
                         logger.log(buffer.readString(charset), LogUtil.D);
                     } else {
-                        logger.log(body.contentType().toString(), LogUtil.D);
-                        logger.log(ProgressIntercept.formatSize(body.contentLength()), LogUtil.D);
+                        try {
+                            logger.log(body.contentType().toString() + " "
+                                    + ProgressIntercept.formatSize(body.contentLength()), LogUtil.D);
+
+                            Field[] fields = part.body().getClass().getDeclaredFields();
+                            for (Field f : fields) {
+                                if (f.getName().contains("file")) {
+                                    f.setAccessible(true);
+                                    File file = (File) f.get(part.body());
+                                    logger.log(file.getAbsolutePath(), LogUtil.D);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             } else {
