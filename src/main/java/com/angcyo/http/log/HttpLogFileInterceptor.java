@@ -1,6 +1,8 @@
 package com.angcyo.http.log;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import com.angcyo.http.progress.ProgressIntercept;
 import okhttp3.*;
 import okhttp3.internal.http.HttpHeaders;
 import okio.Buffer;
@@ -41,11 +43,11 @@ public class HttpLogFileInterceptor implements Interceptor {
         String uuid = UUID.randomUUID().toString().replace("-", "");
 
         //请求数据
-        StringBuilder requestBuilder = new StringBuilder();
+        StringBuilder requestBuilder = new StringBuilder("Request->");
         requestBuilder.append(uuid);
         requestBuilder.append("\n");
         //返回数据
-        StringBuilder responseBuilder = new StringBuilder();
+        StringBuilder responseBuilder = new StringBuilder("Response->");
         responseBuilder.append(uuid);
         responseBuilder.append("\n");
 
@@ -81,6 +83,11 @@ public class HttpLogFileInterceptor implements Interceptor {
 
         /*打印Content-Type*/
         if (hasRequestBody) {
+            String simpleName = requestBody.getClass().getSimpleName();
+            if (!TextUtils.isEmpty(simpleName)) {
+                requestBuilder.append("Body-Class:").append(simpleName).append("\n");
+            }
+
             // Request body headers are only present when installed as a network interceptor. Force
             // them to be included (when available) so there values are known.
             if (requestBody.contentType() != null) {
@@ -97,6 +104,23 @@ public class HttpLogFileInterceptor implements Interceptor {
             /*请求打印结束*/
             if (bodyEncoded(request.headers())) {
                 requestBuilder.append("(encoded body omitted)");
+            } else if (requestBody instanceof MultipartBody) {
+                Buffer buffer = new Buffer();
+                for (MultipartBody.Part part : ((MultipartBody) requestBody).parts()) {
+                    RequestBody body = part.body();
+                    if (body.contentType() == null) {
+                        buffer.clear();
+                        Charset charset = UTF8;
+                        //字符串键值对
+                        body.writeTo(buffer);
+
+                        requestBuilder.append(part.headers().toString());
+                        requestBuilder.append(buffer.readString(charset)).append("\n");
+                    } else {
+                        requestBuilder.append(body.contentType().toString()).append(" ");
+                        requestBuilder.append(ProgressIntercept.formatSize(body.contentLength())).append("\n");
+                    }
+                }
             } else {
                 Buffer buffer = new Buffer();
                 requestBody.writeTo(buffer);
@@ -149,6 +173,7 @@ public class HttpLogFileInterceptor implements Interceptor {
             }
             throw e;
         }
+
         long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
         /*

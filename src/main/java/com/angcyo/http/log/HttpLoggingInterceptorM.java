@@ -1,5 +1,7 @@
 package com.angcyo.http.log;
 
+import android.text.TextUtils;
+import com.angcyo.http.progress.ProgressIntercept;
 import okhttp3.*;
 import okhttp3.internal.http.HttpHeaders;
 import okhttp3.internal.platform.Platform;
@@ -172,6 +174,11 @@ public final class HttpLoggingInterceptorM implements Interceptor {
 
             /*打印Content-Type*/
             if (hasRequestBody) {
+                String simpleName = requestBody.getClass().getSimpleName();
+                if (!TextUtils.isEmpty(simpleName)) {
+                    logger.log("Body-Class:" + simpleName, LogUtil.D);
+                }
+
                 // Request body headers are only present when installed as a network interceptor. Force
                 // them to be included (when available) so there values are known.
                 if (requestBody.contentType() != null) {
@@ -197,6 +204,23 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 logger.log("--> END " + request.method(), LogUtil.D);
             } else if (bodyEncoded(request.headers())) {
                 logger.log("--> END " + request.method() + " (encoded body omitted)", LogUtil.D);
+            } else if (requestBody instanceof MultipartBody) {
+                Buffer buffer = new Buffer();
+                for (MultipartBody.Part part : ((MultipartBody) requestBody).parts()) {
+                    RequestBody body = part.body();
+                    if (body.contentType() == null) {
+                        buffer.clear();
+                        Charset charset = UTF8;
+                        //字符串键值对
+                        body.writeTo(buffer);
+
+                        logger.log(part.headers().toString(), LogUtil.D);
+                        logger.log(buffer.readString(charset), LogUtil.D);
+                    } else {
+                        logger.log(body.contentType().toString(), LogUtil.D);
+                        logger.log(ProgressIntercept.formatSize(body.contentLength()), LogUtil.D);
+                    }
+                }
             } else {
                 Buffer buffer = new Buffer();
                 requestBody.writeTo(buffer);
