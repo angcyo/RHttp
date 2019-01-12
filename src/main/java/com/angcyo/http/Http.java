@@ -37,6 +37,7 @@ public class Http {
     public static String BASE_URL = "http://www.api.com";
     public static final String TAG = "HttpResult";
     public static boolean LOG_BODY = BuildConfig.DEBUG;
+    public static boolean LOG_INTERCEPTOR_RESPONSE = BuildConfig.DEBUG;
 
     public static Retrofit.Builder builder(String baseUrl, String logTag) {
         return builder(defaultOkHttpClick(logTag).build(), baseUrl);
@@ -56,6 +57,7 @@ public class Http {
         if (BuildConfig.DEBUG) {
             httpLoggingInterceptorM.setLevel(HttpLoggingInterceptorM.Level.BODY);
         }
+        httpLoggingInterceptorM.logResponse = LOG_INTERCEPTOR_RESPONSE;
         return new OkHttpClient.Builder()
                 .connectTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .readTimeout(TIME_OUT, TimeUnit.SECONDS)

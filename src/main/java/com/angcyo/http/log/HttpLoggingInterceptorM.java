@@ -110,6 +110,11 @@ public final class HttpLoggingInterceptorM implements Interceptor {
 
     private final Logger logger;
 
+    /**
+     * 是打印返回体数据的log
+     */
+    public boolean logResponse = true;
+
     private volatile Level level = Level.NONE;
 
     /**
@@ -273,9 +278,12 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 .url() + " (" + tookMs + "ms" + (!logHeaders ? ", " + bodySize + " body" : "") + ')', LogUtil.D);
 
         if (logHeaders) {
-            Headers headers = response.headers();
-            for (int i = 0, count = headers.size(); i < count; i++) {
-                logger.log(headers.name(i) + ": " + headers.value(i), LogUtil.D);
+
+            if (logResponse) {
+                Headers headers = response.headers();
+                for (int i = 0, count = headers.size(); i < count; i++) {
+                    logger.log(headers.name(i) + ": " + headers.value(i), LogUtil.D);
+                }
             }
 
             if (!logBody || !HttpHeaders.hasBody(response)) {
@@ -287,32 +295,33 @@ public final class HttpLoggingInterceptorM implements Interceptor {
                 source.request(Long.MAX_VALUE); // Buffer the entire body.
                 Buffer buffer = source.buffer();
 
-                Charset charset = UTF8;
-                MediaType contentType = responseBody.contentType();
-                if (contentType != null) {
-                    try {
-                        charset = contentType.charset(UTF8);
-                    } catch (UnsupportedCharsetException e) {
+                if (logResponse) {
+                    Charset charset = UTF8;
+                    MediaType contentType = responseBody.contentType();
+                    if (contentType != null) {
+                        try {
+                            charset = contentType.charset(UTF8);
+                        } catch (UnsupportedCharsetException e) {
 
-                        logger.log("Couldn't decode the response body; charset is likely malformed.", LogUtil.D);
-                        logger.log("<-- END HTTP", LogUtil.D);
+                            logger.log("Couldn't decode the response body; charset is likely malformed.", LogUtil.D);
+                            logger.log("<-- END HTTP", LogUtil.D);
 
+                            return response;
+                        }
+                    }
+
+                    if (!isPlaintext(buffer)) {
+
+                        logger.log("<-- END HTTP (binary " + buffer.size() + "-byte body omitted)", LogUtil.D);
                         return response;
                     }
+
+                    if (contentLength != 0) {
+
+                        logger.log(buffer.clone()
+                                .readString(charset), LogUtil.JSON);
+                    }
                 }
-
-                if (!isPlaintext(buffer)) {
-
-                    logger.log("<-- END HTTP (binary " + buffer.size() + "-byte body omitted)", LogUtil.D);
-                    return response;
-                }
-
-                if (contentLength != 0) {
-
-                    logger.log(buffer.clone()
-                            .readString(charset), LogUtil.JSON);
-                }
-
                 logger.log("<-- END HTTP: " + requestMessage + " (" + buffer.size() + "-byte body)", LogUtil.D);
             }
 
