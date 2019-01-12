@@ -36,6 +36,7 @@ public class Http {
     public static int TIME_OUT = 5_000;
     public static String BASE_URL = "http://www.api.com";
     public static final String TAG = "HttpResult";
+    public static boolean LOG_BODY = BuildConfig.DEBUG;
 
     public static Retrofit.Builder builder(String baseUrl, String logTag) {
         return builder(defaultOkHttpClick(logTag).build(), baseUrl);
@@ -134,14 +135,14 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    LogUtil.json(TAG, body);
+                                    logJson(TAG, body);
 
                                     if (convertString != null) {
                                         String covert = convertString.covert(body);
                                         if (TextUtils.equals(covert, body)) {
                                             LogUtil.i("IConvertString 转换前后一致");
                                         } else {
-                                            LogUtil.json("转换后", covert);
+                                            logJson("转换后", covert);
                                         }
                                         body = covert;
                                     }
@@ -174,14 +175,14 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    LogUtil.json(TAG, body);
+                                    logJson(TAG, body);
 
                                     if (convert != null) {
                                         String covert = convert.covert(body);
                                         if (TextUtils.equals(covert, body)) {
                                             LogUtil.i("IConvertString 转换前后一致");
                                         } else {
-                                            LogUtil.json("转换后", covert);
+                                            logJson("转换后", covert);
                                         }
                                         body = covert;
                                     }
@@ -222,14 +223,14 @@ public class Http {
                                     body = stringResponse.string();
 
                                     //"接口返回数据-->\n" +
-                                    LogUtil.json(TAG, body);
+                                    logJson(TAG, body);
 
                                     if (convert != null) {
                                         String covert = convert.covert(body);
                                         if (TextUtils.equals(covert, body)) {
                                             LogUtil.i("IConvertString 转换前后一致");
                                         } else {
-                                            LogUtil.json("转换后", covert);
+                                            logJson("转换后", covert);
                                         }
                                         body = covert;
                                     }
@@ -249,6 +250,13 @@ public class Http {
     public static <T> Observable.Transformer<ResponseBody, List<T>> transformerListBean(@NonNull final Class<T> type) {
         return transformerListBean(type, null);
     }
+
+    private static void logJson(String tag, String jsonFormat) {
+        if (LOG_BODY) {
+            LogUtil.json(tag, jsonFormat);
+        }
+    }
+
 
     public interface IConvertString {
         String covert(String body);
