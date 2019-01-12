@@ -279,6 +279,16 @@ public class Http {
             public void onRemove(String key) {
                 map.remove(key);
             }
+
+            @Override
+            public boolean isKeyAllowEmpty(String key) {
+                return false;
+            }
+
+            @Override
+            public void onEmptyValue(String key, String value) {
+                map.put(key, "");
+            }
         }, args);
         return map;
     }
@@ -302,7 +312,11 @@ public class Http {
                 } else {
                     String value = str.substring(indexOf + 1, length);
                     if (TextUtils.isEmpty(value)) {
-                        onPutValue.onRemove(key);
+                        if (onPutValue.isKeyAllowEmpty(key)) {
+                            onPutValue.onEmptyValue(key, value);
+                        } else {
+                            onPutValue.onRemove(key);
+                        }
                     } else {
                         onPutValue.onValue(key, str.substring(key.length() + 1));
                     }
@@ -326,10 +340,19 @@ public class Http {
                 .build();
     }
 
+    public static RequestBody fileForm(String fileFormKey,
+                                       String filePath,
+                                       String... otherValues) {
+        return fileForm(fileFormKey, filePath, null, otherValues);
+    }
+
     /**
      * 表单形式上传文件, 和其他参数
      */
-    public static RequestBody fileForm(String fileFormKey, String filePath, String... otherValues) {
+    public static RequestBody fileForm(String fileFormKey,
+                                       String filePath,
+                                       final List<String> emptyKeyList, //可以为空的key
+                                       String... otherValues) {
         final MultipartBody.Builder builder = new MultipartBody.Builder();
 
         if (!TextUtils.isEmpty(filePath)) {
@@ -352,6 +375,19 @@ public class Http {
             @Override
             public void onRemove(String key) {
 
+            }
+
+            @Override
+            public boolean isKeyAllowEmpty(String key) {
+                if (emptyKeyList != null) {
+                    return emptyKeyList.contains(key);
+                }
+                return false;
+            }
+
+            @Override
+            public void onEmptyValue(String key, String value) {
+                builder.addFormDataPart(key, "");
             }
         }, otherValues);
 
@@ -396,5 +432,15 @@ public class Http {
         void onValue(String key, String value);
 
         void onRemove(String key);
+
+        /**
+         * key是否允许为空
+         */
+        boolean isKeyAllowEmpty(String key);
+
+        /**
+         * 当value为空时, 可以自行决定 设置 "" or null
+         */
+        void onEmptyValue(String key, String value);
     }
 }
