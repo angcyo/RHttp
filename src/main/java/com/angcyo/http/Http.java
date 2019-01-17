@@ -63,6 +63,7 @@ public class Http {
                 .readTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .writeTimeout(TIME_OUT, TimeUnit.SECONDS)
                 .addNetworkInterceptor(httpLoggingInterceptorM)
+                .addInterceptor(new CopyrightInterceptor())
                 .addNetworkInterceptor(new ProgressIntercept());
     }
 
