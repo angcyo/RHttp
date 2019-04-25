@@ -19,7 +19,7 @@ public class CopyrightInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
         Request.Builder requestBuilder = original.newBuilder()
-                .header("Copyright © Robi", "https://github.com/angcyo");
+                .header("Copyright-Robi", "https://github.com/angcyo");
         Request request = requestBuilder.build();
         return chain.proceed(request);
     }
